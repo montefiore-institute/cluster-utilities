@@ -167,26 +167,36 @@ def si():
     return ["sinfo", "-o", "%30N %10c %10m  %10G", "-e"]
 
 
+def expand_nodes(name):
+    """Expand a possibly contracted node name (e.g. alan-compute-[06-07]) """
+    match = re.match(r'^([a-z\-]+)\[((?:[0-9]+[,\-])+[0-9]+)\]$', name)
+    if match is None:
+        return [name]
+    else:
+        names = list()
+        prefix = match.group(1)
+        for suffix in match.group(2).split(','):
+            id_match = re.match(r'([0-9]+)-([0-9]+)', suffix)
+            if id_match is None:
+                names.append(prefix + suffix)
+            else:
+                start = int(id_match.group(1))
+                end = int(id_match.group(2))
+                for i in range(start, end + 1):
+                    names.append("{}{}".format(prefix, str(i).rjust(2, '0')))
+        return names
+
+
 def max_resources_per_node():
     """Extract max resources per node"""
     cmd = subprocess.run(si(), stdout=subprocess.PIPE)
     outputs = re.split("[\r\n]+", cmd.stdout.decode('utf-8').strip())[1:]
     outputs = [re.split(r'\s+', l) for l in outputs]
-
     node_dict = dict()
     for nodes in outputs:
-        match = re.match(r'^([a-z\-]+)\[([0-9]+)-([0-9]+)\]$', nodes[0])
         data = {"gpus": int(nodes[3].split(":")[1]), "cpus": int(nodes[1]), "mem": int(nodes[2]) * 1000}
-        if match is None:
-            node_dict[nodes[0]] = data
-        else:
-            prefix = match.group(1)
-            start = int(match.group(2))
-            end = int(match.group(3))
-            for i in range(start, end + 1):
-                name = "{}{}".format(prefix, str(i).rjust(2, '0'))
-                node_dict[name] = data
-
+        for node in expand_nodes(nodes[0]):
+            node_dict[node] = data
     return node_dict
 
 
