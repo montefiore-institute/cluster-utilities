@@ -39,10 +39,16 @@ class BeautifulTable(object):
         return [fn(quantity), fn(max_val), self._format_percent(quantity / max_val)]
 
     def _get_datapoint(self, data, row_name, col, maxes=None):
-        return self._format_col(
-            col=col, quantity=data[row_name][col],
-            max_val=maxes[row_name][self.headers[col]] if self._col_has_max(maxes, row_name, col) else None
-        )
+        max_val = maxes[row_name][self.headers[col]] if self._col_has_max(maxes, row_name, col) else None
+        if row_name not in data:
+            return self._format_col(col=col, quantity=0, max_val=max_val)
+        return self._format_col(col=col, quantity=data[row_name][col], max_val=max_val)
+
+    def _get_row_names(self, data, maxes=None):
+        names = set(data.keys())
+        if maxes is not None:
+            names = names.union(set(maxes.keys()))
+        return sorted(names)
 
     def _get_formatted_data_and_size(self, data, maxes=None):
         """Formats data and compute column widths
@@ -77,7 +83,7 @@ class BeautifulTable(object):
         widths = [None] * n_columns
         rows = []
         width_names = 0
-        names = sorted(data.keys())
+        names = self._get_row_names(data, maxes=maxes)
         for row_name in names:
             curr_row = []
             width_names = max(width_names, len(row_name))
@@ -129,6 +135,9 @@ class BeautifulTable(object):
         out:
             output stream
         """
+        if len(data) == 0:
+            print("empty")
+            return
         names, rows, width_names, widths = self._get_formatted_data_and_size(data, maxes=maxes)
         # print headers
         header = [" " * width_names] + [h.center(sum(ws) + len(ws) - 1) for h, ws in zip(self.headers, widths)]
