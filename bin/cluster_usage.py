@@ -99,10 +99,10 @@ class BeautifulTable(object):
         if self.total:
             totals = [0] * n_columns
             total_maxes = [0] * n_columns
-            for row_name in data.keys():
+            for row_name in names:
                 for k in range(n_columns):
-                    totals[k] += data[row_name][k]
-                    if total_maxes[k] is None or not self._col_has_max(maxes, row_name, k):
+                    totals[k] += data[row_name][k] if row_name in data else 0
+                    if not self._col_has_max(maxes, row_name, k):
                         total_maxes[k] = None
                         continue
                     total_maxes[k] += maxes[row_name][self.headers[k]]
