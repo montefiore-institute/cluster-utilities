@@ -168,8 +168,8 @@ class Job(object):
 
 def sq():
     return ["squeue", "-O", 'jobid:.15,partition:.15,name:.100,username:.18,state:.12,tres-per-node'
-                            ':.16,numtasks:.10,minmemory:.15,timeused:.16,timelimit:.16,reasonlist:'
-                            '.22,prioritylong:.22,submittime:.24,nice:.5']
+                            ':.16,numtasks:.10,cpus-per-task:.16,minmemory:.15,timeused:.16'
+                            ',timelimit:.16,reasonlist:.22,prioritylong:.22,submittime:.24,nice:.5']
 
 
 def si():
@@ -284,7 +284,7 @@ def main(argv):
     is_running = lambda j: j.state == "RUNNING"
     is_queued = lambda j: not is_running(j)
     memory_attr = lambda j: parse_memory(j.min_memory)
-    tasks_attr = lambda j: int(j.tasks)
+    tasks_attr = lambda j: int(j.tasks) * int(j.cpus_per_task)
     gpus_attr = lambda j: int(j.tres_per_node.split(":")[1]) if j.tres_per_node != "N/A" else 0
     count_attr = lambda j: 1
 
