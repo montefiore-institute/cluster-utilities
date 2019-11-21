@@ -248,7 +248,7 @@ def print_dict(d):
 
 
 def parse_memory(m):
-    match = re.match(r"^([0-9]+)([GKMT])$", m)
+    match = re.match(r"^([0-9]+)(?:.(?:[0-9]+))?([GKMT])$", m)
     if match is None:
         raise ValueError('Invalid memory string: {}'.format(m))
     mem = int(match.group(1))
