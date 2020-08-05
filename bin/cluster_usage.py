@@ -173,7 +173,7 @@ def sq():
 
 
 def si():
-    return ["sinfo", "-o", "%30N %10c %10m  %10G", "-e"]
+    return ["sinfo", "-o", "%30N %10c %10m %20G", "-e"]
 
 
 def expand_nodes(name):
@@ -203,7 +203,7 @@ def max_resources_per_node():
     outputs = [re.split(r'\s+', l) for l in outputs]
     node_dict = dict()
     for nodes in outputs:
-        data = {"gpus": int(nodes[3].split(":")[1]), "cpus": int(nodes[1]), "mem": int(nodes[2]) * 1000}
+        data = {"gpus": int(re.match(r'^gpu:([0-9]+).*$', nodes[3]).group(1)), "cpus": int(nodes[1]), "mem": int(nodes[2]) * 1000}
         for node in expand_nodes(nodes[0]):
             node_dict[node] = data
     return node_dict
