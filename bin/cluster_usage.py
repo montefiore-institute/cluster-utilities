@@ -248,10 +248,12 @@ def print_dict(d):
 
 
 def parse_memory(m):
-    match = re.match(r"^([0-9]+)(?:.(?:[0-9]+))?([GKMT])$", m)
+    match = re.match(r"^([0-9]+)(?:.(?:[0-9]+))?([GKMT])?$", m)
     if match is None:
         raise ValueError('Invalid memory string: {}'.format(m))
     mem = int(match.group(1))
+    if len(match.groups()) < 3:
+        return mem
     unit = match.group(2)
     if unit == "T":
         return mem * 1000000000
