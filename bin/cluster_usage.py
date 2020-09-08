@@ -252,7 +252,7 @@ def parse_memory(m):
     if match is None:
         raise ValueError('Invalid memory string: {}'.format(m))
     mem = int(match.group(1))
-    if len(match.groups()) < 3:
+    if match.group(2) is None:
         return mem
     unit = match.group(2)
     if unit == "T":
